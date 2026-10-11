@@ -18,6 +18,8 @@ public class ConfigStore {
     private static final String KEY_UNLOCK_TYPE = "unlock_type";  // "pin", "password", "pattern"
     private static final String KEY_PATTERN = "device_pattern";   // pattern as "2,5,6,3,9,8"
     private static final String KEY_SCREEN_TIMEOUT = "screen_timeout_sec";
+    private static final String KEY_BRIDGE_ENABLED = "bridge_enabled";
+    private static final String KEY_PERMISSIONS_ASKED = "permissions_asked";
 
     private static volatile ConfigStore instance;
     private SharedPreferences prefs;
@@ -105,6 +107,28 @@ public class ConfigStore {
         return prefs.getInt(KEY_SCREEN_TIMEOUT, 30);
     }
 
+    // ── Bridge on/off state ─────────────────────────────────────
+
+    /** Whether the user wants the HTTP bridge running. Default: on (first launch). */
+    public boolean isBridgeEnabled() {
+        return prefs.getBoolean(KEY_BRIDGE_ENABLED, true);
+    }
+
+    public void setBridgeEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_BRIDGE_ENABLED, enabled).apply();
+    }
+
+    // ── Permission onboarding ───────────────────────────────────
+
+    /** Whether the batch permission prompt already ran once (avoid nagging on every launch). */
+    public boolean werePermissionsAsked() {
+        return prefs.getBoolean(KEY_PERMISSIONS_ASKED, false);
+    }
+
+    public void setPermissionsAsked(boolean asked) {
+        prefs.edit().putBoolean(KEY_PERMISSIONS_ASKED, asked).apply();
+    }
+
     public JSONObject toJson() {
         try {
             JSONObject j = new JSONObject();
@@ -112,6 +136,7 @@ public class ConfigStore {
             j.put("hasPattern", hasPattern());
             j.put("unlockType", getUnlockType());
             j.put("screenTimeout", getScreenTimeout());
+            j.put("bridgeEnabled", isBridgeEnabled());
             return j;
         } catch (Exception e) {
             return new JSONObject();

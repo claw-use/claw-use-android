@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -18,6 +19,8 @@ import android.util.Log;
 
 import com.clawuse.android.auth.TokenManager;
 import com.clawuse.android.handlers.*;
+
+import androidx.core.app.ServiceCompat;
 
 import org.json.JSONObject;
 
@@ -43,6 +46,9 @@ public class BridgeService extends Service {
     private static final String CHANNEL_ID = "claw_bridge_channel";
     private static final int NOTIFICATION_ID = 7333;
     private static final int HEARTBEAT_INTERVAL_MS = 30_000;
+
+    /** Intent action that stops the bridge (used by the notification action). */
+    public static final String ACTION_STOP = "com.clawuse.android.action.STOP_BRIDGE";
 
     private RawHttpServer server;
     private TokenManager tokenManager;
@@ -83,6 +89,23 @@ public class BridgeService extends Service {
     private NotificationManager notificationManager;
 
     public static BridgeService getInstance() { return instance; }
+
+    /** Start the bridge and remember that the user wants it enabled. */
+    public static void start(Context context) {
+        ConfigStore.get(context).setBridgeEnabled(true);
+        Intent intent = new Intent(context, BridgeService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent);
+        } else {
+            context.startService(intent);
+        }
+    }
+
+    /** Stop the bridge and remember that the user wants it disabled. */
+    public static void stop(Context context) {
+        ConfigStore.get(context).setBridgeEnabled(false);
+        context.stopService(new Intent(context, BridgeService.class));
+    }
 
     @Override
     public void onCreate() {
@@ -146,7 +169,29 @@ public class BridgeService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && ACTION_STOP.equals(intent.getAction())) {
+            Log.i(TAG, "Stop requested (notification) — shutting down bridge");
+            configStore.setBridgeEnabled(false);
+            stopForegroundSafe();
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+        // Never resurrect the bridge if the user switched it off (e.g. START_STICKY restart).
+        if (!configStore.isBridgeEnabled()) {
+            Log.i(TAG, "Bridge is disabled — not starting");
+            stopForegroundSafe();
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         return START_STICKY;
+    }
+
+    private void stopForegroundSafe() {
+        try {
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE);
+        } catch (Exception e) {
+            Log.w(TAG, "stopForeground failed", e);
+        }
     }
 
     @Override
@@ -156,6 +201,7 @@ public class BridgeService extends Service {
     public void onDestroy() {
         super.onDestroy();
         instance = null;
+        stopForegroundSafe();
         if (heartbeatHandler != null) heartbeatHandler.removeCallbacksAndMessages(null);
         if (server != null) server.stop();
         if (audioHandler != null) audioHandler.shutdown();
@@ -276,6 +322,11 @@ public class BridgeService extends Service {
         PendingIntent copyTokenPi = PendingIntent.getBroadcast(this, 2, copyTokenIntent,
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
 
+        Intent stopIntent = new Intent(this, BridgeService.class);
+        stopIntent.setAction(ACTION_STOP);
+        PendingIntent stopPi = PendingIntent.getService(this, 3, stopIntent,
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+
         return new Notification.Builder(this, CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(text)
@@ -286,6 +337,8 @@ public class BridgeService extends Service {
                         null, "📋 Copy Setup", copySetupPi).build())
                 .addAction(new Notification.Action.Builder(
                         null, "Copy Token", copyTokenPi).build())
+                .addAction(new Notification.Action.Builder(
+                        null, "⏹ Stop", stopPi).build())
                 .build();
     }
 

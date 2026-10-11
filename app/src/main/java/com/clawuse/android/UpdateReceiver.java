@@ -16,6 +16,10 @@ public class UpdateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
+            if (!ConfigStore.get(context).isBridgeEnabled()) {
+                Log.i(TAG, "Package updated — bridge disabled by user, not starting");
+                return;
+            }
             Log.i(TAG, "Package updated — restarting BridgeService");
             Intent serviceIntent = new Intent(context, BridgeService.class);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

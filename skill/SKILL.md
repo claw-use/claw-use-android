@@ -253,6 +253,9 @@ cua -d <name> unlock
 **Important**: Only PIN unlock is verified to work. Pattern unlock is experimental and unreliable — the accessibility gesture dispatch doesn't consistently hit the correct grid coordinates across different devices and screen sizes. If the device uses pattern lock, change it to PIN.
 
 ### Step 3: MIUI/HyperOS Permissions (automated)
+
+**v2.1.0+**: the app now requests all runtime permissions itself — open **Claw Use → Grant All Permissions** (auto-prompted once on first launch) and tap "Allow" through the chained dialogs. This works on any ROM and is the preferred path. `setup-perms` below is a fallback for fully remote setup (no hands on the device).
+
 ```bash
 cua -d <name> setup-perms
 ```

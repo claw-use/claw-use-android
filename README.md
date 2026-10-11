@@ -46,6 +46,20 @@ curl -X POST http://phone:7333/flow -H "X-Bridge-Token: $TOKEN" \
 
 `/flow` executes on the phone itself — polling the accessibility tree at 100ms intervals and reacting instantly when target elements appear. The agent skill includes a `flows.md` file that accumulates these patterns over time.
 
+## What's New in v2.1.0
+
+**Bridge start/stop switch** — turn the HTTP bridge fully on/off from the app instead of force-stopping it:
+
+- A **Bridge** toggle on the main screen stops the foreground service and closes port 7333 when switched off.
+- The choice is persisted: boot (`BOOT_COMPLETED`) and package updates no longer restart a bridge the user turned off.
+- The ongoing notification also has a **⏹ Stop** action for a one-tap shutdown.
+
+**One-shot permission onboarding** — no more hand-navigating Settings:
+
+- New **Grant All Permissions** button (auto-prompted on first launch) chains the system dialogs for every missing runtime permission: camera, microphone, location, phone, SMS, contacts, calendar, files/media and notifications (Android 13+).
+- Denied permanently? **Open App Settings** jumps straight to the right screen.
+- Shortcuts for special access that dialogs can't grant: overlay, battery optimization, install-unknown-apps and MIUI/HyperOS "Other permissions".
+
 ## What's New in v2.0.0
 
 Three unified endpoints replace the old scattered API for agent workflows:
@@ -241,7 +255,7 @@ Download the APK from [Releases](https://github.com/claw-use/claw-use-android/re
 ### 4. Connect
 ```bash
 curl http://<phone-ip>:7333/ping
-# → {"status":"ok","service":"claw-use-android","version":"2.0.0"}
+# → {"status":"ok","service":"claw-use-android","version":"2.1.0"}
 ```
 
 ### 5. Tell It Your PIN (for Remote Unlock)

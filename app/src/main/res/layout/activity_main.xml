@@ -29,6 +29,43 @@
             android:textColor="#80FFFFFF"
             android:layout_marginBottom="24dp" />
 
+        <!-- Bridge on/off -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FF16213E"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Bridge"
+                android:textSize="18sp"
+                android:textColor="#FFFFFFFF"
+                android:textStyle="bold" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_bridge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Start bridge (listen on port 7333)"
+                android:textColor="#FFFFFFFF"
+                android:textSize="16sp"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:id="@+id/tv_bridge_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="● Bridge running"
+                android:textSize="14sp"
+                android:textColor="#FF4CAF50"
+                android:layout_marginTop="6dp" />
+
+        </LinearLayout>
+
         <!-- Services -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -190,6 +227,73 @@
                 android:textSize="14sp"
                 android:textColor="#CCFFFFFF"
                 android:lineSpacingExtra="4dp" />
+
+            <Button
+                android:id="@+id/btn_grant_all"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Grant All Permissions"
+                android:layout_marginTop="12dp" />
+
+            <Button
+                android:id="@+id/btn_open_settings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Open App Settings (denied permissions)"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Special access (not requestable by dialog)"
+                android:textSize="12sp"
+                android:textColor="#80FFFFFF"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="4dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_overlay"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Overlay" />
+
+                <Button
+                    android:id="@+id/btn_battery"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Battery"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_unknown_sources"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Install APK" />
+
+                <Button
+                    android:id="@+id/btn_miui_perms"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="MIUI Other Perms"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

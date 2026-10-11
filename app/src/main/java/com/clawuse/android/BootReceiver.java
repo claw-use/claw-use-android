@@ -17,6 +17,10 @@ public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+            if (!ConfigStore.get(context).isBridgeEnabled()) {
+                Log.i(TAG, "Boot completed — bridge disabled by user, not starting");
+                return;
+            }
             Log.i(TAG, "Boot completed — starting BridgeService");
             Intent serviceIntent = new Intent(context, BridgeService.class);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
